@@ -42,6 +42,51 @@ export type Database = {
         }
         Relationships: []
       }
+      appointments: {
+        Row: {
+          created_at: string
+          date: string
+          email: string | null
+          id: string
+          ip_address: string | null
+          name: string
+          notes: string | null
+          phone: string
+          source: string
+          status: string
+          time: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          name: string
+          notes?: string | null
+          phone: string
+          source?: string
+          status?: string
+          time: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          source?: string
+          status?: string
+          time?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       questionnaire_data: {
         Row: {
           answers: Json | null
