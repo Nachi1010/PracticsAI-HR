@@ -1,9 +1,7 @@
 
 import React from "react";
 import { LandingHeader } from "@/components/LandingHeader";
-import { LandingFeatures } from "@/components/LandingFeatures";
-import { AppointmentForm } from "@/components/AppointmentForm";
-import { LandingTestimonials } from "@/components/LandingTestimonials";
+import { AppointmentCalendar } from "@/components/AppointmentCalendar";
 import { LandingFooter } from "@/components/LandingFooter";
 
 const Index = () => {
@@ -12,13 +10,9 @@ const Index = () => {
       <LandingHeader />
       
       <div className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">קבע פגישה עכשיו</h2>
-        <AppointmentForm />
+        <h2 className="text-3xl font-bold text-center mb-12">בחרו מועד לפגישה</h2>
+        <AppointmentCalendar />
       </div>
-      
-      <LandingFeatures />
-      
-      <LandingTestimonials />
       
       <LandingFooter />
     </div>
