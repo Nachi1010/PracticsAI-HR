@@ -32,6 +32,30 @@ export const AppointmentCalendar = () => {
     user_id?: string | null;
   } | null>(null);
   
+  // מערך של פגישות שכבר נקבעו
+  const [bookedAppointments, setBookedAppointments] = useState<{
+    date: string;
+    time: string;
+  }[]>([]);
+  
+  // מספר מירבי של פגישות מותרות ליום
+  const MAX_APPOINTMENTS_PER_DAY = 5;
+  
+  // פונקציה שבודקת האם יום מסוים מלא בפגישות
+  const isDayFullyBooked = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const appointmentsOnDay = bookedAppointments.filter(app => app.date === dateStr);
+    return appointmentsOnDay.length >= MAX_APPOINTMENTS_PER_DAY;
+  };
+  
+  // פונקציה שבודקת האם שעה מסוימת תפוסה
+  const isTimeSlotBooked = (time: string) => {
+    if (!selectedDate) return false;
+    
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    return bookedAppointments.some(app => app.date === dateStr && app.time === time);
+  };
+  
   const [searchParams] = useSearchParams();
   const name = searchParams.get("name");
   const phone = searchParams.get("phone");
@@ -85,6 +109,32 @@ export const AppointmentCalendar = () => {
     };
     
     fetchIpAddress();
+  }, []);
+  
+  // טעינת הפגישות הקיימות מהדאטאבייס בטעינת הדף
+  useEffect(() => {
+    const fetchBookedAppointments = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('appointments')
+          .select('date, time')
+          .neq('status', 'cancelled'); // לא כולל פגישות שבוטלו
+        
+        if (error) {
+          console.error("שגיאה בטעינת פגישות קיימות:", error);
+          return;
+        }
+        
+        if (data) {
+          setBookedAppointments(data);
+          console.log("נטענו פגישות קיימות:", data.length);
+        }
+      } catch (error) {
+        console.error("שגיאה בטעינת פגישות:", error);
+      }
+    };
+    
+    fetchBookedAppointments();
   }, []);
   
   // חיפוש משתמש לפי IP בטבלאות הקיימות
@@ -159,6 +209,7 @@ export const AppointmentCalendar = () => {
   // בחירת תאריך
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
+    setSelectedTime(undefined); // ביטול בחירת שעה קודמת
     if (date) {
       setStep('time');
     }
@@ -176,6 +227,16 @@ export const AppointmentCalendar = () => {
         variant: "destructive",
         title: "שגיאה",
         description: "יש לבחור תאריך ושעה",
+      });
+      return;
+    }
+    
+    // בדיקה נוספת שהשעה אינה תפוסה לפני השליחה
+    if (isTimeSlotBooked(selectedTime)) {
+      toast({
+        variant: "destructive",
+        title: "שעה תפוסה",
+        description: "השעה שבחרת כבר תפוסה, אנא בחר שעה אחרת",
       });
       return;
     }
@@ -211,6 +272,12 @@ export const AppointmentCalendar = () => {
       
       // עדכון המצב לאחר שליחה מוצלחת
       setStep('success');
+      
+      // הוספת הפגישה החדשה למערך הפגישות המקומי
+      setBookedAppointments([
+        ...bookedAppointments, 
+        { date: format(selectedDate, 'yyyy-MM-dd'), time: selectedTime }
+      ]);
       
       // הצגת הודעת הצלחה
       toast({
@@ -268,7 +335,10 @@ export const AppointmentCalendar = () => {
               const day = date.getDay();
               const isFridayOrSaturday = day === 5 || day === 6;
               
-              return date < today || isFridayOrSaturday;
+              // בדיקה האם היום מלא בפגישות
+              const isFullyBooked = isDayFullyBooked(date);
+              
+              return date < today || isFridayOrSaturday || isFullyBooked;
             }}
             className={cn("mx-auto pointer-events-auto")}
           />
@@ -292,19 +362,27 @@ export const AppointmentCalendar = () => {
         </div>
         
         <div className="grid grid-cols-2 gap-3">
-          {availableHours.map((time) => (
-            <Button
-              key={time}
-              variant={selectedTime === time ? "default" : "outline"}
-              className={cn(
-                "h-12",
-                selectedTime === time ? "border-primary" : ""
-              )}
-              onClick={() => handleTimeSelect(time)}
-            >
-              {time}
-            </Button>
-          ))}
+          {availableHours.map((time) => {
+            const isBooked = isTimeSlotBooked(time);
+            // אם השעה תפוסה, לא מציגים אותה בכלל
+            if (isBooked) {
+              return null;
+            }
+            
+            return (
+              <Button
+                key={time}
+                variant={selectedTime === time ? "default" : "outline"}
+                className={cn(
+                  "h-12",
+                  selectedTime === time ? "border-primary" : ""
+                )}
+                onClick={() => handleTimeSelect(time)}
+              >
+                {time}
+              </Button>
+            );
+          })}
         </div>
         
         <div className="mt-6 flex items-center gap-2">
