@@ -115,6 +115,7 @@ export const AppointmentCalendar = () => {
   useEffect(() => {
     const fetchBookedAppointments = async () => {
       try {
+        console.log("מתחיל טעינת פגישות קיימות...");
         const { data, error } = await supabase
           .from('appointments')
           .select('date, time')
@@ -126,8 +127,15 @@ export const AppointmentCalendar = () => {
         }
         
         if (data) {
-          setBookedAppointments(data);
-          console.log("נטענו פגישות קיימות:", data.length);
+          // המרת ערכי התאריך לפורמט אחיד (yyyy-MM-dd)
+          const formattedAppointments = data.map(app => ({
+            date: new Date(app.date).toISOString().split('T')[0],
+            time: app.time
+          }));
+          
+          setBookedAppointments(formattedAppointments);
+          console.log("נטענו פגישות קיימות:", formattedAppointments.length);
+          console.log("פרטי הפגישות:", formattedAppointments);
         }
       } catch (error) {
         console.error("שגיאה בטעינת פגישות:", error);
@@ -164,7 +172,7 @@ export const AppointmentCalendar = () => {
         const { data: registrationData, error: registrationError } = await supabase
           .from('registration_data')
           .select('name, phone, email, user_id')
-          .filter('metadata->ip_address', 'eq', ip)
+          .eq('metadata->>ip_address', ip)
           .order('created_at', { ascending: false })
           .limit(1);
         
@@ -232,7 +240,12 @@ export const AppointmentCalendar = () => {
     }
     
     // בדיקה נוספת שהשעה אינה תפוסה לפני השליחה
-    if (isTimeSlotBooked(selectedTime)) {
+    const dateString = format(selectedDate, 'yyyy-MM-dd');
+    const isBooked = bookedAppointments.some(
+      app => app.date === dateString && app.time === selectedTime
+    );
+    
+    if (isBooked) {
       toast({
         variant: "destructive",
         title: "שעה תפוסה",
