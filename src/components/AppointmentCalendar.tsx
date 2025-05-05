@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from "date-fns";
 import { CalendarIcon, Clock } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
@@ -9,20 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
-  CardFooter
 } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -37,11 +24,91 @@ export const AppointmentCalendar = () => {
   const [selectedTime, setSelectedTime] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'date' | 'time' | 'success'>('date');
+  const [ipAddress, setIpAddress] = useState<string | null>(null);
+  const [userData, setUserData] = useState<{
+    name?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    user_id?: string | null;
+  } | null>(null);
   
   const [searchParams] = useSearchParams();
   const name = searchParams.get("name");
   const phone = searchParams.get("phone");
   const email = searchParams.get("email");
+  
+  // קבלת כתובת IP של המשתמש בטעינת הדף
+  useEffect(() => {
+    const fetchIpAddress = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        setIpAddress(data.ip);
+        
+        // לאחר קבלת האיפי, חפש את המשתמש בטבלאות
+        if (data.ip) {
+          await findUserByIp(data.ip);
+        }
+      } catch (error) {
+        console.error("שגיאה בקבלת כתובת IP:", error);
+      }
+    };
+    
+    fetchIpAddress();
+  }, []);
+  
+  // חיפוש משתמש לפי IP בטבלאות הקיימות
+  const findUserByIp = async (ip: string) => {
+    try {
+      // נסה למצוא את המשתמש בטבלת appointments
+      const { data: appointmentData } = await supabase
+        .from('appointments')
+        .select('name, phone, email, user_id')
+        .eq('ip_address', ip)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (appointmentData && appointmentData.length > 0) {
+        setUserData(appointmentData[0]);
+        console.log("נמצא משתמש בטבלת appointments:", appointmentData[0]);
+        return;
+      }
+      
+      // אם לא נמצא, חפש בטבלת registration_data
+      const { data: registrationData } = await supabase
+        .from('registration_data')
+        .select('name, phone, email, user_id')
+        .filter('metadata->ip_address', 'eq', ip)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (registrationData && registrationData.length > 0) {
+        setUserData(registrationData[0]);
+        console.log("נמצא משתמש בטבלת registration_data:", registrationData[0]);
+        return;
+      }
+      
+      // אם עדיין לא נמצא, חפש בטבלת questionnaire_data
+      const { data: questionnaireData } = await supabase
+        .from('questionnaire_data')
+        .select('contact_info, user_id')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (questionnaireData && questionnaireData.length > 0 && questionnaireData[0].contact_info) {
+        const contactInfo = questionnaireData[0].contact_info;
+        setUserData({
+          name: contactInfo.name || null,
+          phone: contactInfo.phone || null,
+          email: contactInfo.email || null,
+          user_id: questionnaireData[0].user_id
+        });
+        console.log("נמצא משתמש בטבלת questionnaire_data:", contactInfo);
+      }
+    } catch (error) {
+      console.error("שגיאה בחיפוש משתמש:", error);
+    }
+  };
   
   // בחירת תאריך
   const handleDateSelect = (date: Date | undefined) => {
@@ -70,34 +137,22 @@ export const AppointmentCalendar = () => {
     setIsSubmitting(true);
     
     try {
-      // אחזור כתובת ה-IP של המשתמש
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-      const ipAddress = ipData?.ip || 'unknown';
+      // שימוש בנתונים מהפרמטרים, או מהמשתמש שנמצא, או ברירת מחדל
+      const appointmentName = name || (userData && userData.name) || "אורח";
+      const appointmentPhone = phone || (userData && userData.phone) || "";
+      const appointmentEmail = email || (userData && userData.email) || null;
+      const appointmentUserId = userData && userData.user_id;
       
       // הכנת הנתונים להוספה לטבלה
       const appointmentData = {
-        name: name || "אורח",
-        phone: phone || "",
-        email: email || null,
+        name: appointmentName,
+        phone: appointmentPhone,
+        email: appointmentEmail,
         date: format(selectedDate, 'yyyy-MM-dd'),
         time: selectedTime,
         ip_address: ipAddress,
-        user_id: null // ברירת מחדל - יתעדכן אם נמצא משתמש קיים
+        user_id: appointmentUserId || null
       };
-      
-      // חיפוש משתמש קיים לפי טלפון או אימייל אם קיימים
-      if (phone || email) {
-        const { data: userData } = await supabase
-          .from('registration_data')
-          .select('user_id')
-          .or(`phone.eq.${phone},email.eq.${email}`)
-          .maybeSingle();
-          
-        if (userData) {
-          appointmentData.user_id = userData.user_id;
-        }
-      }
       
       // הוספת הנתונים לטבלת הפגישות
       const { error } = await supabase
