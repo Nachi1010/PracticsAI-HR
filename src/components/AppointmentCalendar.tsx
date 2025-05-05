@@ -37,13 +37,30 @@ export const AppointmentCalendar = () => {
   const phone = searchParams.get("phone");
   const email = searchParams.get("email");
   
-  // קבלת כתובת IP של המשתמש בטעינת הדף
+  // קבלת כתובת IP של המשתמש בטעינת הדף מתוך שירות חיצוני
   useEffect(() => {
     const fetchIpAddress = async () => {
       try {
+        // שימוש ב-ipify API לקבלת האייפי האמיתי של הלקוח
         const response = await fetch('https://api.ipify.org?format=json');
+        
+        // אם התגובה אינה תקינה, ננסה שירות IP חלופי
+        if (!response.ok) {
+          const backupResponse = await fetch('https://ipapi.co/json/');
+          const backupData = await backupResponse.json();
+          setIpAddress(backupData.ip);
+          console.log("קבלת כתובת IP משירות גיבוי:", backupData.ip);
+          
+          // לאחר קבלת האיפי, חפש את המשתמש בטבלאות
+          if (backupData.ip) {
+            await findUserByIp(backupData.ip);
+          }
+          return;
+        }
+        
         const data = await response.json();
         setIpAddress(data.ip);
+        console.log("קבלת כתובת IP מהשירות הראשי:", data.ip);
         
         // לאחר קבלת האיפי, חפש את המשתמש בטבלאות
         if (data.ip) {
@@ -51,6 +68,19 @@ export const AppointmentCalendar = () => {
         }
       } catch (error) {
         console.error("שגיאה בקבלת כתובת IP:", error);
+        // ניסיון אחרון דרך שירות שלישי
+        try {
+          const lastResortResponse = await fetch('https://api.ipdata.co?api-key=test');
+          const lastResortData = await lastResortResponse.json();
+          setIpAddress(lastResortData.ip);
+          console.log("קבלת כתובת IP משירות שלישי:", lastResortData.ip);
+          
+          if (lastResortData.ip) {
+            await findUserByIp(lastResortData.ip);
+          }
+        } catch (finalError) {
+          console.error("כל ניסיונות קבלת כתובת IP נכשלו:", finalError);
+        }
       }
     };
     
@@ -69,23 +99,39 @@ export const AppointmentCalendar = () => {
         .limit(1);
       
       if (appointmentData && appointmentData.length > 0) {
-        setUserData(appointmentData[0]);
+        setUserData({
+          name: appointmentData[0].name,
+          phone: appointmentData[0].phone,
+          email: appointmentData[0].email,
+          user_id: appointmentData[0].user_id
+        });
         console.log("נמצא משתמש בטבלת appointments:", appointmentData[0]);
         return;
       }
       
       // אם לא נמצא, חפש בטבלת registration_data
-      const { data: registrationData } = await supabase
-        .from('registration_data')
-        .select('name, phone, email, user_id')
-        .filter('metadata->ip_address', 'eq', ip)
-        .order('created_at', { ascending: false })
-        .limit(1);
-      
-      if (registrationData && registrationData.length > 0) {
-        setUserData(registrationData[0]);
-        console.log("נמצא משתמש בטבלת registration_data:", registrationData[0]);
-        return;
+      try {
+        const { data: registrationData, error: registrationError } = await supabase
+          .from('registration_data')
+          .select('name, phone, email, user_id')
+          .filter('metadata->ip_address', 'eq', ip)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (registrationError) {
+          console.error("שגיאה בחיפוש בטבלת registration_data:", registrationError);
+        } else if (registrationData && registrationData.length > 0) {
+          setUserData({
+            name: registrationData[0].name,
+            phone: registrationData[0].phone,
+            email: registrationData[0].email,
+            user_id: registrationData[0].user_id
+          });
+          console.log("נמצא משתמש בטבלת registration_data:", registrationData[0]);
+          return;
+        }
+      } catch (registrationQueryError) {
+        console.error("שגיאה בשאילתת registration_data:", registrationQueryError);
       }
       
       // אם עדיין לא נמצא, חפש בטבלת questionnaire_data
@@ -96,7 +142,7 @@ export const AppointmentCalendar = () => {
         .limit(1);
       
       if (questionnaireData && questionnaireData.length > 0 && questionnaireData[0].contact_info) {
-        const contactInfo = questionnaireData[0].contact_info;
+        const contactInfo = questionnaireData[0].contact_info as Record<string, any>;
         setUserData({
           name: contactInfo.name || null,
           phone: contactInfo.phone || null,
