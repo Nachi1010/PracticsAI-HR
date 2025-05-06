@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -32,6 +31,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserDataContext } from "@/contexts/UserDataContext";
+import { useAutoFillUserData } from "@/hooks/useUserData";
 
 // שעות זמינות לפגישות
 const availableHours = [
@@ -53,6 +54,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export const AppointmentForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { userIp, isIpLoading } = useUserDataContext();
   
   // הגדרת הטופס עם ברירות מחדל וולידציה
   const form = useForm<FormValues>({
@@ -65,16 +67,18 @@ export const AppointmentForm = () => {
     }
   });
 
+  // מילוי אוטומטי של פרטי המשתמש אם הם קיימים במערכת
+  useAutoFillUserData({
+    setName: (value) => form.setValue('name', value),
+    setPhone: (value) => form.setValue('phone', value),
+    setEmail: (value) => form.setValue('email', value)
+  });
+
   // שליחת הטופס לשרת
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     
     try {
-      // אחזור כתובת ה-IP של המשתמש
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-      const ipAddress = ipData?.ip || 'unknown';
-      
       // הכנת הנתונים להוספה לטבלה
       const appointmentData = {
         name: data.name,
@@ -82,9 +86,21 @@ export const AppointmentForm = () => {
         email: data.email || null,
         date: format(data.date, 'yyyy-MM-dd'),
         time: data.time,
-        notes: data.notes || null,
-        ip_address: ipAddress
+        notes: data.notes || null
       };
+      
+      // הוספת כתובת IP אם היא זמינה
+      try {
+        if (userIp && userIp.trim() !== '') {
+          appointmentData['ip_address'] = userIp;
+          console.log("Using IP address from context:", userIp);
+        } else {
+          console.warn("IP address not available from context");
+        }
+      } catch (ipError) {
+        console.warn('Could not add IP address to appointment data', ipError);
+        // ממשיך את התהליך גם אם נכשל בהוספת האייפי
+      }
       
       // הוספת הנתונים לטבלה
       const { error } = await supabase
