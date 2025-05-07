@@ -15,7 +15,7 @@ const App = () => (
       <UserDataProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/hr">
+        <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
