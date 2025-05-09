@@ -115,6 +115,9 @@ export const AppointmentForm = () => {
       toast({
         title: "הפגישה נקבעה בהצלחה!",
         description: `פגישתך נקבעה לתאריך ${format(data.date, 'dd/MM/yyyy')} בשעה ${data.time}`,
+        <a href='questionnaire' class='text-white font-bold hover:text-white/80 hover:underline transition-colors' onclick='event.preventDefault(); document.getElementById(\"questionnaire.practicsai.com\"));'>שאלון התאמה ראשונית</a> בינתיים, מוזמנים למלא
+        וחה ישירות אל מקצוע העתיד."
+    }
       });
       
       // איפוס הטופס
