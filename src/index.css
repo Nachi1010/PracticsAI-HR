@@ -98,6 +98,16 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    font-family: 'Arial', sans-serif;
+    letter-spacing: 0.02em;
+  }
 }
 
 /* אנימציית גלים */
@@ -117,4 +127,33 @@
   100% {
     background-position: 0% 50%;
   }
+}
+
+/* סגנונות מותאמים אישית */
+.section-border {
+  border: 1px solid rgba(226, 232, 240, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05), 
+              0 2px 4px rgba(0, 0, 0, 0.03), 
+              0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.text-decorative {
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-decorative {
+  background: linear-gradient(45deg, rgba(59, 130, 246, 0.9), rgba(139, 92, 246, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }

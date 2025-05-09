@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -14,10 +13,11 @@ interface DateSelectorProps {
 
 export const DateSelector = ({ selectedDate, onDateSelect, bookedAppointments }: DateSelectorProps) => {
   return (
-    <Card className="max-w-md mx-auto bg-white shadow-lg rounded-lg">
+    <Card className="max-w-md mx-auto border border-slate-200/20 backdrop-blur-sm section-border">
       <CardContent className="p-6">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold">בחר תאריך לפגישה</h3>
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-bold text-decorative">בחר תאריך לפגישה</h3>
+          <p className="text-sm text-muted-foreground mt-2">נא לבחור בתאריך פנוי (לא כולל סופי שבוע)</p>
         </div>
         <Calendar
           mode="single"
@@ -37,7 +37,11 @@ export const DateSelector = ({ selectedDate, onDateSelect, bookedAppointments }:
             
             return date < today || isFridayOrSaturday || isFullyBooked;
           }}
-          className={cn("mx-auto pointer-events-auto")}
+          className={cn("mx-auto pointer-events-auto border border-slate-200/30 rounded-lg p-3")}
+          classNames={{
+            day_selected: "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-600 focus:text-white",
+            day_today: "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-50",
+          }}
         />
       </CardContent>
     </Card>

@@ -68,17 +68,17 @@ export const LandingFooter = () => {
               className="mb-8 px-8 py-4 text-lg"
               onClick={handleCallMeClick}
             >
-              אני מעדיף/ה שפשוט תתקשרו אליי
+              פשוט תתקשרו אליי
             </Button>
             
             <div className="text-center mt-4 text-muted-foreground">
               <p className="text-sm max-w-xl mx-auto">
-              ™PracticsAI, תכנית הגיוס הייחודית למקצוע ה-AI. משרה של יוצר AI - חוקר או מפתח - דורשת מיומנות רבה, התמחות נרחבת והכרות עמוקה עם מגוון רחב של דיסציפלינות. עם PracticsAI  ניתן לראשונה להפוך למפתח AI אמיתי בתוך פחות משנה. במידה ותתקבל לתכנית, CloserAI - אחת מעשרת חברות ה-AI הצומחות בישראל תתחייב לך בחוזה חתום מראש לתעסוקה מיד עם תום הלימודים.               </p>
+              ™PracticsAI, תכנית הגיוס הייחודית למקצוע ה-AI בישראל. משרה של יוצר AI - חוקר או מפתח - דורשת מיומנות רבה, התמחות נרחבת והכרות עמוקה עם מגוון רחב של דיסציפלינות. עם PracticsAI  ניתן לראשונה להפוך למפתח AI אמיתי בתוך פחות משנה. במידה ותתקבל לתכנית, CloserAI - אחת מעשרת חברות ה-AI הצומחות בישראל תתחייב לך בחוזה חתום מראש לתעסוקה מיד עם תום הלימודים.               </p>
             </div>
           </div>
           
           <div className="flex flex-col md:flex-row justify-center items-center text-sm text-muted-foreground">
-            <p>© 2025 כל הזכויות שמורות | האי - המכון ללימודי בינה מלאכותית</p>
+            <p>© 2025 כל הזכויות שמורות | CloserAI inc. DE, USA</p>
           </div>
         </div>
       </footer>

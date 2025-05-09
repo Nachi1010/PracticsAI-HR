@@ -31,7 +31,7 @@ const translations = {
 
 export const Header = ({ onMenuToggle }: HeaderProps) => {
   const [scrolled, setScrolled] = useState(false);
-  const { currentLang, setCurrentLang } = useLanguage();
+  const { currentLang } = useLanguage();
   const [prevScrollY, setPrevScrollY] = useState(0);
 
   const handleScroll = useCallback(() => {
@@ -51,8 +51,6 @@ export const Header = ({ onMenuToggle }: HeaderProps) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  const t = translations[currentLang];
-
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-700 ease-in-out backdrop-blur-md
@@ -63,14 +61,14 @@ export const Header = ({ onMenuToggle }: HeaderProps) => {
       }}
     >
       <div className="container mx-auto flex items-center justify-between h-full px-0 sm:px-4 lg:px-8">
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-2 md:gap-4 order-last">
           <Button
             variant="ghost"
             size="icon"
             className={`hover:bg-dark-light/20 text-high-contrast transition-all duration-700
               ${scrolled ? 'h-10 w-10' : 'h-12 w-12'}`}
             onClick={onMenuToggle}
-            aria-label={t.menuLabel}
+            aria-label="פתח/סגור תפריט"
           >
             <Menu className={`transition-all duration-700 ${scrolled ? 'h-6 w-6' : 'h-8 w-8'}`} aria-hidden="true" />
           </Button>
@@ -93,9 +91,8 @@ export const Header = ({ onMenuToggle }: HeaderProps) => {
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={() => setCurrentLang(currentLang === "en" ? "he" : "en")}
-          className="hover:bg-dark-light/20 transition-colors font-bold"
-          aria-label={t.languageLabel}
+          className="hover:bg-dark-light/20 transition-colors font-bold order-first"
+          aria-label="שפה נוכחית: עברית"
           style={{
             color: '#0f172a', 
             '--tw-text-opacity': '1',
@@ -110,7 +107,7 @@ export const Header = ({ onMenuToggle }: HeaderProps) => {
             textShadow: 'none',
             filter: 'none',
             boxShadow: 'none'
-          }}>{t.toggleLanguage}</div>
+          }}>עברית</div>
         </Button>
       </div>
     </header>
