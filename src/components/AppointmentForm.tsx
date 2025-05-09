@@ -200,7 +200,7 @@ export const AppointmentForm = () => {
                           {field.value ? (
                             format(field.value, "dd/MM/yyyy")
                           ) : (
-                            <span>בחר תאריך</span>
+                            <span>בחר</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>

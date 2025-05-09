@@ -26,10 +26,10 @@ export const TimeSelector = ({
   bookedAppointments
 }: TimeSelectorProps) => {
   return (
-    <Card className="max-w-md mx-auto border border-slate-200/20 backdrop-blur-sm section-border">
+    <Card className="max-w-md mx-auto border border-slate-300/30 shadow-lg backdrop-blur-sm bg-slate-800/10">
       <CardContent className="p-6">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center p-2 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-full mb-2">
+          <div className="inline-flex items-center justify-center p-2 bg-slate-800/20 rounded-full mb-2">
             <Clock className="h-5 w-5 text-primary" />
           </div>
           <h3 className="text-xl font-bold text-decorative">בחר שעה לפגישה</h3>
@@ -53,8 +53,8 @@ export const TimeSelector = ({
                 className={cn(
                   "h-12 transition-all",
                   selectedTime === time 
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none shadow-md" 
-                    : "border-slate-200/30 hover:border-slate-200/50 hover:bg-slate-100/20"
+                    ? "bg-slate-800 text-white border-none shadow-md hover:bg-slate-700" 
+                    : "border-slate-300/30 hover:border-slate-300/50 hover:bg-slate-700/10"
                 )}
                 onClick={() => onTimeSelect(time)}
               >
@@ -67,7 +67,7 @@ export const TimeSelector = ({
         <div className="mt-8 flex items-center gap-3">
           <Button 
             variant="outline" 
-            className="w-1/2 border-slate-200/30 hover:border-slate-200/50 hover:bg-slate-100/20"
+            className="w-1/2 border-slate-300/30 hover:border-slate-300/50 hover:bg-slate-700/10"
             onClick={onBack}
           >
             חזרה לבחירת תאריך
@@ -78,7 +78,7 @@ export const TimeSelector = ({
               "w-1/2",
               !selectedTime || isSubmitting
                 ? "opacity-70"
-                : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-md"
+                : "bg-slate-800 hover:bg-slate-700 text-white shadow-md"
             )}
             onClick={onConfirm}
             disabled={!selectedTime || isSubmitting}

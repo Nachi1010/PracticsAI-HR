@@ -60,20 +60,23 @@ export const LandingFooter = () => {
       <Header onMenuToggle={handleMenuToggle} />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
-      <footer className="bg-transparent pt-12 pb-8">
+      <footer className="bg-transparent pt-4 pb-8">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center justify-center mb-8">
+          <div className="flex flex-col items-center justify-center">
             <Button 
               variant="outline"
-              className="mb-8 px-8 py-4 text-lg"
+              size="lg"
+              className="mb-6 px-12 py-6 text-xl font-bold border-2 border-slate-300/30 shadow-lg hover:bg-slate-800 hover:text-white transition-all duration-300"
               onClick={handleCallMeClick}
             >
-              פשוט תתקשרו אליי
+              פשוט תתקשרו אליי 📞
             </Button>
             
-            <div className="text-center mt-4 text-muted-foreground">
+            <div className="text-center text-muted-foreground">
               <p className="text-sm max-w-xl mx-auto">
-              ™PracticsAI, תכנית הגיוס הייחודית למקצוע ה-AI בישראל. משרה של יוצר AI - חוקר או מפתח - דורשת מיומנות רבה, התמחות נרחבת והכרות עמוקה עם מגוון רחב של דיסציפלינות. עם PracticsAI  ניתן לראשונה להפוך למפתח AI אמיתי בתוך פחות משנה. במידה ותתקבל לתכנית, CloserAI - אחת מעשרת חברות ה-AI הצומחות בישראל תתחייב לך בחוזה חתום מראש לתעסוקה מיד עם תום הלימודים.               </p>
+              ™PracticsAI, תכנית הגיוס הייחודית למקצוע ה-AI בישראל.
+              משרה של יוצר AI - חוקר או מפתח - דורשת מיומנות רבה, התמחות נרחבת והכרות עמוקה עם מגוון רחב של דיסציפלינות. עם PracticsAI  ניתן לראשונה להפוך למפתח AI אמיתי בתוך פחות משנה. 
+              במידה ותתקבל לתכנית, CloserAI - אחת מעשרת חברות ה-AI הצומחות בישראל תתחייב לך בחוזה חתום מראש לתעסוקה מיד עם תום הלימודים.               </p>
             </div>
           </div>
           

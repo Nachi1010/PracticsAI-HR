@@ -62,19 +62,9 @@ export const Header = ({ onMenuToggle }: HeaderProps) => {
     >
       <div className="container mx-auto flex items-center justify-between h-full px-0 sm:px-4 lg:px-8">
         <div className="flex items-center gap-2 md:gap-4 order-last">
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`hover:bg-dark-light/20 text-high-contrast transition-all duration-700
-              ${scrolled ? 'h-10 w-10' : 'h-12 w-12'}`}
-            onClick={onMenuToggle}
-            aria-label="פתח/סגור תפריט"
-          >
-            <Menu className={`transition-all duration-700 ${scrolled ? 'h-6 w-6' : 'h-8 w-8'}`} aria-hidden="true" />
-          </Button>
           <a 
             href="https://practicsai.com/" 
-            className="flex items-center hover:opacity-90 transition-opacity md:ml-12 lg:ml-20 xl:ml-32"
+            className="flex items-center hover:opacity-90 transition-opacity"
             aria-label="Home"
           >
             <picture>
@@ -87,6 +77,16 @@ export const Header = ({ onMenuToggle }: HeaderProps) => {
               />
             </picture>
           </a>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`hover:bg-dark-light/20 text-high-contrast transition-all duration-700
+              ${scrolled ? 'h-10 w-10' : 'h-12 w-12'}`}
+            onClick={onMenuToggle}
+            aria-label="פתח/סגור תפריט"
+          >
+            <Menu className={`transition-all duration-700 ${scrolled ? 'h-6 w-6' : 'h-8 w-8'}`} aria-hidden="true" />
+          </Button>
         </div>        
         <Button 
           variant="ghost" 
@@ -112,4 +112,4 @@ export const Header = ({ onMenuToggle }: HeaderProps) => {
       </div>
     </header>
   );
-}; 
+};
